@@ -11,21 +11,22 @@ router.use(function (req, res, next) {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await sql.query(`SELECT [Id]
-                                        ,[objet]
-                                        ,[patient_id]
-                                        ,[mauvaise_info]
-                                        ,[bonne_info]
-                                        ,[sommaire]
-                                        ,[approuve]
-                                        ,[approuve_par]
-                                        ,[traite]
-                                        ,[traite_par]
-                                        ,[cree_par]
-                                        ,[cree_le]
-                                        ,[modifie_par]
-                                        ,[modifie_le]
-                                    FROM [creation_compte].[dbo].[modification_dossier]`);
+        const result = await sql
+        .query(`SELECT   [Id]
+                        ,[objet]
+                        ,[patient_id]
+                        ,[mauvaise_info]
+                        ,[bonne_info]
+                        ,[sommaire]
+                        ,[status]
+                        ,[status_date]
+                        ,[status_by]
+                        ,[status_reason]
+                        ,[cree_par]
+                        ,[cree_le]
+                        ,[modifie_par]
+                        ,[modifie_le]
+                    FROM [task_master].[dbo].[modification_dossier]`);
 
         if (result.recordsets[0].length === 0)
             res.status(404).send('No record found');
@@ -38,23 +39,24 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const result = await sql.query(`SELECT [Id]
-                                        ,[objet]
-                                        ,[patient_id]
-                                        ,[mauvaise_info]
-                                        ,[bonne_info]
-                                        ,[sommaire]
-                                        ,[approuve]
-                                        ,[approuve_par]
-                                        ,[traite]
-                                        ,[traite_par]
-                                        ,[cree_par]
-                                        ,[cree_le]
-                                        ,[modifie_par]
-                                        ,[modifie_le]
-                                    FROM [creation_compte].[dbo].[modification_dossier]
-                                    WHERE Id = ${req.params.id}`);
-
+        const result = await sql
+        .query(`SELECT   [Id]
+                        ,[objet]
+                        ,[patient_id]
+                        ,[mauvaise_info]
+                        ,[bonne_info]
+                        ,[sommaire]
+                        ,[status]
+                        ,[status_date]
+                        ,[status_by]
+                        ,[status_reason]
+                        ,[cree_par]
+                        ,[cree_le]
+                        ,[modifie_par]
+                        ,[modifie_le]
+                    FROM [task_master].[dbo].[modification_dossier]
+                    WHERE Id = ${req.params.id}`);
+                                    
         if (result.recordsets[0].length === 0)
             res.status(404).send('No record found for the given id');
 
@@ -67,22 +69,30 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const result = await sql
-            .query(`INSERT INTO [dbo].[modification_dossier]
-                            ([objet]
-                            ,[patient_id]
-                            ,[mauvaise_info]
-                            ,[bonne_info]
-                            ,[sommaire]
-                            ,[cree_par]
-                            ,[cree_le])
-                    VALUES
-                            (${req.body.objet}
-                            ,'${req.body.patient_id}'
-                            ,'${req.body.mauvaise_info}'
-                            ,'${req.body.bonne_info}'
-                            ,'${req.body.sommaire}'
-                            ,'${req.body.cree_par}'
-                            ,getdate())`);
+            .query(`INSERT INTO  [dbo].[modification_dossier]
+                                ([objet]
+                                ,[patient_id]
+                                ,[mauvaise_info]
+                                ,[bonne_info]
+                                ,[sommaire]
+                                ,[status]
+                                ,[status_date]
+                                ,[status_by]
+                                ,[status_reason]
+                                ,[cree_par]
+                                ,[cree_le])
+                        VALUES
+                                (${req.body.objet}
+                                ,'${req.body.patient_id}'
+                                ,'${req.body.mauvaise_info}'
+                                ,'${req.body.bonne_info}'
+                                ,'${req.body.sommaire}'
+                                ,'${req.body.status}'
+                                ,getdate()
+                                ,'${req.body.status_by}'
+                                ,'${req.body.status_reason}'
+                                ,'${req.body.cree_par}'
+                                ,getdate())`);
 
         res.send(result);
     } catch (error) {
@@ -93,42 +103,40 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const modifications = await sql
-            .query(`SELECT [Id]
-                    ,[objet]
-                    ,[patient_id]
-                    ,[mauvaise_info]
-                    ,[bonne_info]
-                    ,[sommaire]
-                    ,[approuve]
-                    ,[approuve_par]
-                    ,[traite]
-                    ,[traite_par]
-                    ,[cree_par]
-                    ,[cree_le]
-                    ,[modifie_par]
-                    ,[modifie_le]
-                FROM [creation_compte].[dbo].[modification_dossier]
-                WHERE Id = ${req.params.id}
-                AND traite = 2`);
+            .query(`SELECT   [Id]
+                            ,[objet]
+                            ,[patient_id]
+                            ,[mauvaise_info]
+                            ,[bonne_info]
+                            ,[sommaire]
+                            ,[status]
+                            ,[status_date]
+                            ,[status_by]
+                            ,[status_reason]
+                            ,[cree_par]
+                            ,[cree_le]
+                            ,[modifie_par]
+                            ,[modifie_le]
+                        FROM [task_master].[dbo].[modification_dossier]
+                WHERE Id = ${req.params.id}`);
 
         if (modifications.recordsets[0].length === 0)
             res.status(404).send('No record found for the given id');
 
         const result = sql
             .query(`UPDATE [dbo].[modification_dossier]
-                    SET [objet] = ${req.body.objet}
-                    ,[patient_id] = '${req.body.patient_id}'
-                    ,[mauvaise_info] = '${req.body.mauvaise_info}'
-                    ,[bonne_info] = '${req.body.bonne_info}'
-                    ,[sommaire] = '${req.body.sommaire}'
-                    ,[approuve] = ${req.body.approuve}
-                    ,[approuve_par] = ${req.body.approuve_par}
-                    ,[traite] = ${req.body.traite}
-                    ,[traite_par] = ${req.body.traite_par}
-                    ,[modifie_par] = '${req.body.modifie_par}'
+                    SET [objet] = ${req.body.objet},
+                    ,[patient_id] = '${req.body.patient_id}',
+                    ,[mauvaise_info] = '${req.body.mauvaise_info}',
+                    ,[bonne_info] = '${req.body.bonne_info}',
+                    ,[sommaire] = '${req.body.sommaire}',
+                    ,[status] = ${req.body.status},
+                    ,[status_by] = ${req.body.status_by},
+                    ,[status_date] = '${req.body.status_date}',
+                    ,[status_reason] = ${req.body.status_reason},
+                    ,[modifie_par] = '${req.body.modifie_par}',
                     ,[modifie_le] = getdate()
-                WHERE Id = ${req.params.id}
-                AND traite = 2`);
+                WHERE Id = ${req.params.id}`);
 
         if (modifications.recordset[0].objet !== req.body.objet)
             log_modification.insertLog(sql,
