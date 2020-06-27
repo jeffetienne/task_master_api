@@ -79,6 +79,22 @@ const compte = db.define("creation_compte", {
     modifie_le: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    supprime: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    supprime_par: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    supprime_le: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    supprime_raison: {
+        type: DataTypes.TEXT,
+        allowNull: true
     }
 }, {
     freezeTableName: true,

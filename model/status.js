@@ -3,11 +3,10 @@ const { DataTypes } = require('sequelize');
 const db = require('../startup/connection_db');
 
 const Status = db.define("Status", {
-  Id: {
-    type: DataTypes.INTEGER,
+  code:{
+    type: DataTypes.TEXT,
     allowNull: false,
-    primaryKey: true,
-    autoIncrement: true
+    primaryKey: true
   },
   name: {
     type: DataTypes.TEXT,

@@ -9,6 +9,7 @@ const insert_log = require('../log-modification');
 const Role = require('../model/role');
 const Unite = require('../model/unite');
 const Status = require('../model/status');
+const Op = require('sequelize');
 
 //connection_db.connectToDb(sql);
 router.use(function (req, res, next) {
@@ -94,10 +95,32 @@ router.get('/:id', async (req, res) => {
                 { model: Status }
             ]
         });
-        
+
         res.send(result);
     } catch (error) {
         res.send(error);
+    }
+});
+
+router.get('/:id_beneficiaire/:username', async (req, res) => {
+    try {
+        const result = await compte.findAll(
+            {
+                where: Op.or(
+                    { id_beneficiaire: req.params.id_beneficiaire },
+                    { username: req.params.username }
+                  ),
+            
+            include: [
+                { model: Role },
+                { model: Unite },
+                { model: Status }
+            ]
+        });
+
+        res.send(result);
+    } catch (error) {
+        console.log(error);
     }
 });
 
@@ -140,12 +163,12 @@ router.post('/', async (req, res) => {
         //req.body.date_demande = req.body.date_demande.toISOString();
         //req.body.status_date = req.body.status_date.toISOString();
         //req.body.cree_le = req.body.cree_le.toISOString();
-        
+
         const result = await compte.create(req.body);//*/
         res.send(result);
     } catch (error) {
         //console.log(error);
-        res.send(error);
+        console.log(error);
     }
 });
 
@@ -154,12 +177,12 @@ router.put('/:id', async (req, res, next) => {
     req.body.modifie_le = new Date();
     compte.update(
         req.body,
-        {where: { Id: req.params.id }}
-      )
-      .then(function(rowsUpdated) {
-        res.json(rowsUpdated)
-      })
-      .catch(next)
+        { where: { Id: req.params.id } }
+    )
+        .then(function (rowsUpdated) {
+            res.json(rowsUpdated)
+        })
+        .catch(next)
     /*
     try {
         const result = await sql.query(`SELECT [Id] 
