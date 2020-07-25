@@ -37,9 +37,9 @@ router.get('/:id', async (req, res) => {
             ]
         });
 
-        res.send(result.recordset);
+        res.send(result);
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 });
 
@@ -56,17 +56,17 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         req.body.modifie_par = 'concepteur';
-    req.body.modifie_le = new Date();
-    compte.update(
-        req.body,
-        { where: { Id: req.params.id } }
-    )
-        .then(function (rowsUpdated) {
-            res.json(rowsUpdated)
-        })
-        .catch(next)
+        req.body.modifie_le = new Date();
+        tache.update(
+            req.body,
+            { where: { Id: req.params.id } }
+        )
+            .then(function (rowsUpdated) {
+                res.json(rowsUpdated)
+            })
+            .catch(next)
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 });
 

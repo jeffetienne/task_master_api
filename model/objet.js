@@ -30,7 +30,7 @@ const Objet = db.define("type_demande", {
     }
 }, {
     freezeTableName: true,
-    modelName: 'type_demande',
+    modelName: 'Objet',
     timestamps: false
 });
 

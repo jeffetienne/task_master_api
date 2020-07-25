@@ -176,16 +176,21 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res, next) => {
-    req.body.modifie_par = 'concepteur';
-    req.body.modifie_le = new Date();
-    compte.update(
-        req.body,
-        { where: { Id: req.params.id } }
-    )
-        .then(function (rowsUpdated) {
-            res.json(rowsUpdated)
-        })
-        .catch(next)
+    try {
+        req.body.modifie_par = 'concepteur';
+        req.body.modifie_le = new Date();
+        compte.update(
+            req.body,
+            { where: { Id: req.params.id } }
+        )
+            .then(function (rowsUpdated) {
+                res.json(rowsUpdated)
+            })
+            .catch(next)
+    } catch (error) {
+        console.log(error);
+    }
+
     /*
     try {
         const result = await sql.query(`SELECT [Id] 
