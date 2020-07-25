@@ -21,6 +21,9 @@ router.use(function (req, res, next) {
 router.get('/', async (req, res) => {
     try {
         const comptes = await compte.findAll({
+            where: {
+                supprime: 2
+            },
             include: [
                 { model: Role },
                 { model: Unite },
@@ -29,7 +32,7 @@ router.get('/', async (req, res) => {
         });
         res.send(comptes);
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 
 }
@@ -109,14 +112,14 @@ router.get('/:id_beneficiaire/:username', async (req, res) => {
                 where: Op.or(
                     { id_beneficiaire: req.params.id_beneficiaire },
                     { username: req.params.username }
-                  ),
-            
-            include: [
-                { model: Role },
-                { model: Unite },
-                { model: Status }
-            ]
-        });
+                ),
+
+                include: [
+                    { model: Role },
+                    { model: Unite },
+                    { model: Status }
+                ]
+            });
 
         res.send(result);
     } catch (error) {

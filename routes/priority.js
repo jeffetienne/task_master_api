@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
+const Priority = require('../model/priority');
 
 router.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -10,34 +11,24 @@ router.use(function (req, res, next) {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await sql
-        .query(`SELECT   [Id]
-                        ,[name]
-                    FROM [task_master].[dbo].[priority]`);
-
-        if(result.recordsets[0].length === 0)
-            res.status(404).send('No record Found!!!');
-
-        res.send(result.recordset);
+        const result = await Priority.findAll({
+            order: [
+                ['description', 'ASC']
+            ]
+        })
+        res.send(result);
     } catch (error) {
         res.send(error);
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:name', async (req, res) => {
     try {
-        const result = await sql
-        .query(`SELECT   [Id]
-                        ,[name]
-                    FROM [task_master].[dbo].[priority]
-                    WHERE Id = ${req.params.id}`);
+        const result = await Priority.findByPk(req.params.name);
 
-        if(result.recordsets[0].length === 0)
-            res.status(404).send('No record Found for the given id!!!');
-
-        res.send(result.recordset[0]);
+        res.send(result);
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 });
 

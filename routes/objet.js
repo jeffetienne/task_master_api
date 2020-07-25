@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
+const Objet = require('../model/objet');
 
 router.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -10,36 +11,26 @@ router.use(function (req, res, next) {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await sql
-        .query(`SELECT   [Id]
-                        ,[nom]
-                        ,[description]
-                    FROM [task_master].[dbo].[objet_modification]`);
 
-        if(result.recordsets[0].length === 0)
-            res.status(404).send('No record Found!!!');
+        const result = await Objet.findAll({
+            order: [
+                ['description', 'ASC']
+            ]
+        });
 
-        res.send(result.recordset);
+        res.send(result);
     } catch (error) {
         res.send(error);
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:name', async (req, res) => {
     try {
-        const result = await sql
-        .query(`SELECT   [Id]
-                        ,[nom]
-                        ,[description]
-                    FROM [task_master].[dbo].[objet_modification]
-                    WHERE Id = ${req.params.id}`);
+        const result = await Objet.findByPk(req.params.name);
 
-        if(result.recordsets[0].length === 0)
-            res.status(404).send('No record Found for the given id!!!');
-
-        res.send(result.recordset[0]);
+        res.send(result);
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 });
 

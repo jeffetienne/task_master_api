@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
-const log = require('../log-modification');
+const tache = require('../model/task');
+const Objet = require('../model/objet');
+const Priority = require('../model/priority');
+const Status = require('../model/status');
 
 router.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -11,56 +14,28 @@ router.use(function (req, res, next) {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await sql
-            .query(`SELECT   [Id]
-                            ,[objet]
-                            ,[demande]
-                            ,[assign_to]
-                            ,[assign_date]
-                            ,[deadline]
-                            ,[priority]
-                            ,[status]
-                            ,[status_date]
-                            ,[status_by]
-                            ,[status_reason]
-                            ,[cree_par]
-                            ,[cree_le]
-                            ,[modifie_par]
-                            ,[modifie_le]
-                        FROM [dbo].[tache]`);
-
-        if (result.recordsets[0].length === 0)
-            res.status(404).send('No record found');
-
-        res.send(result.recordset);
+        const result = await tache.findAll({
+            include: [
+                { model: Objet },
+                { model: Priority },
+                { model: Status }
+            ]
+        });
+        res.send(result);
     } catch (error) {
-        res.send(error);
+        console.log(error);
     }
 });
 
 router.get('/:id', async (req, res) => {
     try {
-        const result = await sql
-            .query(`SELECT   [Id]
-                            ,[objet]
-                            ,[demande]
-                            ,[assign_to]
-                            ,[assign_date]
-                            ,[deadline]
-                            ,[priority]
-                            ,[status]
-                            ,[status_date]
-                            ,[status_by]
-                            ,[status_reason]
-                            ,[cree_par]
-                            ,[cree_le]
-                            ,[modifie_par]
-                            ,[modifie_le]
-                        FROM [dbo].[tache]
-                        WHERE Id = ${req.params.id}`);
-
-        if (result.recordsets[0].length === 0)
-            res.status(404).send('No record found');
+        const result = await tache.findByPk(req.params.id, {
+            include: [
+                { model: Objet },
+                { model: Priority },
+                { model: Status }
+            ]
+        });
 
         res.send(result.recordset);
     } catch (error) {
@@ -70,33 +45,7 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const result = await sql
-            .query(`INSERT INTO  [dbo].[tache]
-                                ([objet]
-                                ,[demande]
-                                ,[assign_to]
-                                ,[assign_date]
-                                ,[deadline]
-                                ,[priority]
-                                ,[status]
-                                ,[status_date]
-                                ,[status_by]
-                                ,[status_reason]
-                                ,[cree_par]
-                                ,[cree_le])
-                        VALUES
-                                (${req.body.objet}
-                                ,${req.body.demande}
-                                ,${req.body.assign_to}
-                                ,'${req.body.assign_date}'
-                                ,'${req.body.deadline}'
-                                ,${req.body.priority}
-                                ,${req.body.status}
-                                ,getdate()
-                                ,${req.body.status_by}
-                                ,'${req.body.status_reason}'
-                                ,'${req.body.cree_par}'
-                                ,getdate())`);
+        const result = await tache.create(req.body);
 
         res.send(result);
     } catch (error) {
@@ -106,134 +55,16 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const tasks = await sql
-            .query(`SELECT   [Id]
-                            ,[objet]
-                            ,[demande]
-                            ,[assign_to]
-                            ,[assign_date]
-                            ,[deadline]
-                            ,[priority]
-                            ,[status]
-                            ,[status_date]
-                            ,[status_by]
-                            ,[status_reason]
-                            ,[cree_par]
-                            ,[cree_le]
-                            ,[modifie_par]
-                            ,[modifie_le]
-                        FROM [dbo].[tache]
-                        WHERE Id = ${req.params.id}`)
-
-        if (tasks.recordsets[0].length === 0)
-            res.status(404).send('No record found for the given id');
-
-        const result = await sql
-            .query(`UPDATE [dbo].[tache]
-                        SET [objet] = ${req.body.objet},
-                        ,[demande] = ${req.body.demande},
-                        ,[assign_to] = ${req.body.assign_to},
-                        ,[assign_date] = '${req.body.assign_date}',
-                        ,[deadline] = '${req.body.deadline}',
-                        ,[priority] = ${req.body.priority},
-                        ,[status] = ${req.body.status},
-                        ,[status_date] = '${req.body.status_date}',
-                        ,[status_by] = ${req.body.status_by},
-                        ,[status_reason] = '${req.body.status_reason}',
-                        ,[modifie_par] = '${req.body.modifie_par}',
-                        ,[modifie_le] = getdate()
-                    WHERE Id = ${req.params.id}`);
-
-        if (tasks.recordset[0].objet !== req.body.objet)
-            log.insertLog(sql,
-                'tache',
-                'objet',
-                2,
-                tasks.recordset[0].objet,
-                req.body.objet,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].demande !== req.body.demande)
-            log.insertLog(sql,
-                'tache',
-                'objet',
-                2,
-                tasks.recordset[0].demande,
-                req.body.demande,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].assign_to !== req.body.assign_to)
-            log.insertLog(sql,
-                'tache',
-                'assign_to',
-                2,
-                tasks.recordset[0].assign_to,
-                req.body.assign_to,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].assign_date !== req.body.assign_date)
-            log.insertLog(sql,
-                'tache',
-                'assign_date',
-                2,
-                tasks.recordset[0].assign_date,
-                req.body.assign_date,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].assign_date !== req.body.assign_date)
-            log.insertLog(sql,
-                'tache',
-                'assign_date',
-                2,
-                tasks.recordset[0].assign_date,
-                req.body.assign_date,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].deadline !== req.body.deadline)
-            log.insertLog(sql,
-                'tache',
-                'deadline',
-                2,
-                tasks.recordset[0].deadline,
-                req.body.deadline,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].priority !== req.body.priority)
-            log.insertLog(sql,
-                'tache',
-                'priority',
-                2,
-                tasks.recordset[0].priority,
-                req.body.priority,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].status !== req.body.status)
-            log.insertLog(sql,
-                'tache',
-                'status',
-                2,
-                tasks.recordset[0].status,
-                req.body.status,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].status_date !== req.body.status_date)
-            log.insertLog(sql,
-                'tache',
-                'status_date',
-                2,
-                tasks.recordset[0].status_date,
-                req.body.status_date,
-                req.body.modifie_par);
-
-        if (tasks.recordset[0].status_by !== req.body.status_by)
-            log.insertLog(sql,
-                'tache',
-                'status_by',
-                2,
-                tasks.recordset[0].status_by,
-                req.body.status_by,
-                req.body.modifie_par);
-
+        req.body.modifie_par = 'concepteur';
+    req.body.modifie_le = new Date();
+    compte.update(
+        req.body,
+        { where: { Id: req.params.id } }
+    )
+        .then(function (rowsUpdated) {
+            res.json(rowsUpdated)
+        })
+        .catch(next)
     } catch (error) {
         res.send(error);
     }
