@@ -12,6 +12,7 @@ const log_modifications = require('../routes/log-modifications');
 const modification_application = require('../routes/modification-application');
 const modification_dossier = require('../routes/modification-dossier');
 const task = require('../routes/task');
+const type_donnees = require('../routes/type_donnee');
 const cors = require('cors');
 
 module.exports = function(app) {
@@ -30,4 +31,5 @@ module.exports = function(app) {
   app.use('/api/modification_applications', modification_application);
   app.use('/api/modification_dossiers', modification_dossier);
   app.use('/api/tasks', task);
+  app.use('/api/type_donnees', type_donnees);
 }
