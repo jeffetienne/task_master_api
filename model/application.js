@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 
 const db = require('../startup/connection_db');
 
-const Application = db.define("application", {
+const Application = db.define("Application", {
     name: {
         type: DataTypes.TEXT,
         allowNull: false,

@@ -4,11 +4,6 @@ const db = require('../startup/connection_db');
 const Application = require('./application');
 
 const Module = db.define("module", {
-    Id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey: true
-    },
     application: {
         type: Application,
         allowNull: false

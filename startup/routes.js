@@ -14,6 +14,8 @@ const modification_dossier = require('../routes/modification-dossier');
 const task = require('../routes/task');
 const type_donnees = require('../routes/type_donnee');
 const cors = require('cors');
+const application = require('../routes/application');
+const ajout_module = require('../routes/ajout_module');
 
 module.exports = function(app) {
   app.use(express.json());
@@ -32,4 +34,6 @@ module.exports = function(app) {
   app.use('/api/modification_dossiers', modification_dossier);
   app.use('/api/tasks', task);
   app.use('/api/type_donnees', type_donnees);
+  app.use('/api/applications', application);
+  app.use('/api/ajout_modules', ajout_module);
 }

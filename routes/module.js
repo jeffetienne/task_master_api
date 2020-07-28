@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
+const Module = require('../model/module');
+const Application = require('../model/application');
 
 router.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -10,17 +12,16 @@ router.use(function (req, res, next) {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await sql
-        .query(`SELECT   [Id]
-                        ,[application]
-                        ,[nom]
-                        ,[description]
-                    FROM [task_master].[dbo].[module]`);
+        const result = await Module.findAll({
+            include: [
+                {model: Application}
+            ]
+        });
 
-        if(result.recordsets[0].length === 0)
+        if(result.length === 0)
             res.status(404).send('No record Found!!!');
 
-        res.send(result.recordset);
+        res.send(result);
     } catch (error) {
         res.send(error);
     }
